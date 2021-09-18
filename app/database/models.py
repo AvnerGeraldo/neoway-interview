@@ -1,4 +1,7 @@
+from sqlalchemy import TIMESTAMP, func
+
 from . import db
+from .types import StatusEnum
 
 class Customer(db.Model):
     __tablename__ = 'customer'
@@ -19,3 +22,16 @@ class Sale(db.Model):
     customer_id = db.Column(db.String(11), db.ForeignKey('customer.cpf'))
     most_visited_store = db.Column(db.String(14), db.ForeignKey('store.cnpj'), nullable=True)
     last_purchase_store = db.Column(db.String(14), db.ForeignKey('store.cnpj'), nullable=True)
+
+class SaleFile(db.Model):
+    __tablename__ = 'sale_file'
+    id = db.Column(db.Integer, primary_key=True)
+    status = db.Column(db.Enum(StatusEnum), nullable=True)
+    job_id = db.Column(db.String(100), nullable=True)
+
+class Log(db.Model):
+    __tablename__ = 'log'
+    id = db.Column(db.Integer, primary_key=True)
+    message = db.Column(db.Text)
+    created_at = db.Column(TIMESTAMP(timezone=False), default=func.now())
+    sale_file_id = db.Column(db.Integer, db.ForeignKey('sale_file.id'))
