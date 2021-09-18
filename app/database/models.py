@@ -1,3 +1,4 @@
+from flask import abort
 from sqlalchemy import TIMESTAMP, func
 
 from . import db
@@ -22,6 +23,15 @@ class Sale(db.Model):
     customer_id = db.Column(db.String(11), db.ForeignKey('customer.cpf'))
     most_visited_store = db.Column(db.String(14), db.ForeignKey('store.cnpj'), nullable=True)
     last_purchase_store = db.Column(db.String(14), db.ForeignKey('store.cnpj'), nullable=True)
+
+    def save(addSaleFile):
+        try:
+            db.session.add(addSaleFile)
+            db.session.commit()
+        except Exception as e:
+            db.session.rollback()
+            db.session.close()
+            abort(str(e), 500)
 
 class SaleFile(db.Model):
     __tablename__ = 'sale_file'
