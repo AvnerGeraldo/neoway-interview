@@ -2,7 +2,7 @@ from sqlalchemy import TIMESTAMP, func
 
 from . import db
 from .types import StatusEnum
-from helpers.db import saveModel
+from helpers.db import saveModel, updateModel
 
 class Customer(db.Model):
     __tablename__ = 'customer'
@@ -24,9 +24,6 @@ class Sale(db.Model):
     most_visited_store = db.Column(db.String(14), db.ForeignKey('store.cnpj'), nullable=True)
     last_purchase_store = db.Column(db.String(14), db.ForeignKey('store.cnpj'), nullable=True)
 
-    def save(addSaleFile):
-        saveModel(addSaleFile)
-
 class SaleFile(db.Model):
     __tablename__ = 'sale_file'
     id = db.Column(db.Integer, primary_key=True)
@@ -36,6 +33,12 @@ class SaleFile(db.Model):
     def getNextId():
         maxId = db.session.query(func.max(SaleFile.id)).scalar()
         return (maxId + 1) if maxId else 1
+
+    def save(addSaleFile):
+        saveModel(addSaleFile)
+
+    def update(SaleFileObject, updatedData: dict):
+        updateModel(SaleFileObject, updatedData)
 
 class Log(db.Model):
     __tablename__ = 'log'
