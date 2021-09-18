@@ -1,0 +1,22 @@
+{
+  "name": "neoway",
+  "version": "1.0.0",
+  "main": "index.js",
+  "author": "Avner <avner.conceicao@hotmail.com>",
+  "license": "MIT",
+  "scripts": {
+    "prepare": "husky install",
+    "commit": "git-cz"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^13.1.0",
+    "@commitlint/config-conventional": "^13.1.0",
+    "cz-conventional-changelog": "3.3.0",
+    "husky": "^7.0.2"
+  },
+  "config": {
+    "commitizen": {
+      "path": "./node_modules/cz-conventional-changelog"
+    }
+  }
+}

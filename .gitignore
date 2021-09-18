@@ -2,3 +2,6 @@
 .docker/etc/data/*
 __pycache__/
 *.pyc
+*.log
+*.lock
+node_modules
