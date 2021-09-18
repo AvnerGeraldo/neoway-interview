@@ -4,6 +4,6 @@ from flask_restful import Api
 
 api = Api(app)
 
-from .send_file import SendFile
+from resources import send_file
 
-api.add_resource(SendFile, '/api/sales/import/file')
+api.add_resource(send_file.SendFile, '/api/sales/import/file')
