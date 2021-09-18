@@ -10,6 +10,8 @@ flask-sqlalchemy = "*"
 flask-migrate = "*"
 psycopg2-binary = "*"
 flask-restful = "*"
+redis = "*"
+rq = "*"
 
 [dev-packages]
 
