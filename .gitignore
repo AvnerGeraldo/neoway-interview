@@ -6,3 +6,4 @@ __pycache__/
 *.lock
 node_modules
 .env
+app/database/migrations/*

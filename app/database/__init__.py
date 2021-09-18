@@ -10,3 +10,5 @@ databaseDir = os.path.dirname(os.path.abspath(__file__))
 
 db = SQLAlchemy(app)
 migrate = Migrate(app, db, directory=os.path.join(databaseDir, 'migrations'))
+
+from . import models

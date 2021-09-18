@@ -20,3 +20,14 @@ docker-start:
 
 docker-stop:
 	@docker stop $$(docker ps -f "name=${PROJECT}" | grep ${PROJECT} | awk '{print $$1}')
+
+db:
+	@docker exec -i ${API_CONTAINER} pipenv run flask db $(cmd)
+
+db-init:
+	@$(MAKE) db cmd=init
+	@$(MAKE) db cmd=upgrade
+
+migrate:
+	@$(MAKE) db cmd=migrate
+	@$(MAKE) db cmd=upgrade
