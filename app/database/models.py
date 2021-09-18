@@ -33,6 +33,10 @@ class SaleFile(db.Model):
     status = db.Column(db.Enum(StatusEnum), nullable=True)
     job_id = db.Column(db.String(100), nullable=True)
 
+    def getNextId():
+        maxId = db.session.query(func.max(SaleFile.id)).scalar()
+        return (maxId + 1) if maxId else 1
+
 class Log(db.Model):
     __tablename__ = 'log'
     id = db.Column(db.Integer, primary_key=True)
