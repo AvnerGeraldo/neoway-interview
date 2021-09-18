@@ -9,7 +9,7 @@ class SendFile(Resource):
                 rows = rawData.decode().splitlines(False)
 
             if len(rows) <= 1:
-                abort('File is empty.', 406)
+                abort('Arquivo vazio', 406)
 
             return make_response(jsonify({
                 "message": 'Arquivo enviado com sucesso! Logo iremos processá-lo'
