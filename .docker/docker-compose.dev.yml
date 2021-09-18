@@ -13,6 +13,7 @@ services:
       - ./etc/data:/var/lib/postgresql/data
     ports:
       - 5432:5432
+
   api:
     build:
       context: ../
@@ -29,7 +30,34 @@ services:
       - TZ=America/Sao_Paulo
     depends_on: 
       - db
+      - redis
     ports:
       - 5000:5000
       - 5678:5678
 
+  redis:
+    image: redis
+    container_name: redis_neoway_container
+    restart: always
+    command: redis-server
+    volumes: 
+      - ./etc/redis/sysctl.conf:/etc/sysctl.conf 
+    ports:
+      - 6379:6379
+      
+  worker:
+    build:
+      context: ../
+      dockerfile: .docker/Dockerfile.redis
+    image: redis-worker
+    container_name: redis_worker_neoway_container
+    restart: always
+    volumes:
+      - ../app:/app
+    environment: 
+      - TZ=America/Sao_Paulo
+      - REDISTOGO_URL=redis://redis:6379
+    ports:
+      - 5679:5679
+    depends_on:
+      - redis
