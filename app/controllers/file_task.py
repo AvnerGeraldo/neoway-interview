@@ -24,6 +24,12 @@ class FileTask():
 
                 if processFileInstance.isValidData(formattedData) is False:
                     continue
+
+                resCustomer = self.__prepareCustomerDataToDb(customers, customerDb, formattedData)
+
+                if not resCustomer is None:
+                    addCustomersToDb.append(resCustomer)
+                    customers.append(formattedData['customer_id_cpf'])
                 
         except Exception as error:
             loggerInstance.log(str(error))
@@ -34,3 +40,18 @@ class FileTask():
 
         if hasSaleFile:
             SaleFile.update(hasSaleFile, { 'status': status })
+
+    def __prepareCustomerDataToDb(self, customerList: list, customerDb: list, data: dict):
+        cpf = data['customer_id_cpf']
+
+        if not cpf in customerList:
+            try:
+                if not cpf is None:
+                    hasCustomer = customerDb.filter_by(cpf=cpf).first()
+
+                    if not hasCustomer:
+                        return Customer(cpf=cpf)
+
+                return None
+            except Exception as error:
+                raise Exception("Error trying to add customer with CPF %s on database. %s" % (cpf, str(error)))
