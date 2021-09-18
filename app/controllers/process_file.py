@@ -1,7 +1,6 @@
 import re
 from datetime import datetime
 
-from database.types import StatusEnum
 from helpers.logger import Logger
 from helpers.validateCpfCnpj import ValidaCpfCnpj
 
@@ -9,25 +8,10 @@ class ProcessFile():
     def __init__(self, LoggerInstance: Logger):
         self.Logger = LoggerInstance
 
-    def processRawData(self, rawData: list):
-        self.Logger.log('Processando dados')
-
-        try:
-            for index, rowData in enumerate(rawData):
-                if index == 0:
-                    continue
-
-                columns = self.__separateDataInColumns(rowData)
-                cleanedRowData = self.__cleanRawData(columns)
-                formattedData = self.__setHeaderOnData(cleanedRowData)
-
-                if self.__isValidData(formattedData) is False:
-                    continue
-
-            return {}
-        except Exception as error:
-            self.Logger.log(str(error))
-            self.__setSaleFileStatus(StatusEnum.error)
+    def processRawData(self, rowData: str):
+        columns = self.__separateDataInColumns(rowData)
+        cleanedRowData = self.__cleanRawData(columns)
+        return self.__setHeaderOnData(cleanedRowData)       
 
     def __separateDataInColumns(self, rowData: str):
         splitSpaces = rowData.split(' ')
@@ -62,7 +46,7 @@ class ProcessFile():
             'last_purchase_store_cnpj': rowData[7],
         }
 
-    def __isValidData(self, data: list) -> bool:
+    def isValidData(self, data: list) -> bool:
         if data['customer_id_cpf'] is None:
             self.Logger.log('CPF is empty')
             return False

@@ -4,13 +4,7 @@ from flask_restful import Resource
 from database.redis import q
 from database.models import SaleFile
 from database.types import StatusEnum
-from controllers.process_file import ProcessFile
-from helpers.logger import Logger
-
-def processFileTask(rawData: list):
-    nextSaleFileId = SaleFile.getNextId()
-    loggerInstance = Logger(nextSaleFileId)
-    ProcessFile(loggerInstance).processRawData(rawData)
+from controllers.file_task import FileTask
 
 class SendFile(Resource):
     def post(self):
@@ -22,7 +16,7 @@ class SendFile(Resource):
             if len(rows) <= 1:
                 abort('Arquivo vazio', 406)
 
-            job = q.enqueue_call(func=processFileTask, args=(rows, ), result_ttl=5500, timeout=900)
+            job = q.enqueue_call(func=FileTask().handle, args=(rows, ), result_ttl=5500, timeout=900)
             addSale = SaleFile(status=StatusEnum.processing, job_id=job.get_id())
             SaleFile.save(addSale)
 
