@@ -1,0 +1,21 @@
+FROM python:3.9 as base
+
+ADD ./app /app
+WORKDIR /app
+
+RUN apt install -y libpq-dev
+RUN pip install gunicorn pipenv
+RUN pipenv install --system --deploy --ignore-pipfile
+
+FROM base as debug
+
+RUN pip install ptvsd
+
+WORKDIR /app
+CMD python -m ptvsd --host 0.0.0.0 --port 5678 --wait --multiprocess -m flask run -h 0.0.0.0 -p 5000 --no-reload --no-debugger
+
+
+FROM base as prod
+
+WORKDIR /app
+CMD ["gunicorn", "--reload", "-b", ":5000", "wsgi"]

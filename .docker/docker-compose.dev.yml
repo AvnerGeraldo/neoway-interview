@@ -1,0 +1,35 @@
+version: '3.1'
+services:
+  db:
+    image: postgres:12
+    container_name: db_neoway_container
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: XJpP1LmJNYEVq9ti
+      POSTGRES_USER: neoway
+      POSTGRES_DB: neoway
+      PGDATA: /var/lib/postgresql/data/pgdata
+    volumes:
+      - ./etc/data:/var/lib/postgresql/data
+    ports:
+      - 5432:5432
+  api:
+    build:
+      context: ../
+      target: debug
+      dockerfile: .docker/Dockerfile.api
+    image: flask-app-api
+    container_name: api_neoway_container
+    restart: always
+    volumes:
+      - ../app:/app
+    environment: 
+      - FLASK_APP=wsgi
+      - FLASK_DEBUG=0
+      - TZ=America/Sao_Paulo
+    depends_on: 
+      - db
+    ports:
+      - 5000:5000
+      - 5678:5678
+

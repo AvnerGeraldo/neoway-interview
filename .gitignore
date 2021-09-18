@@ -1,0 +1,4 @@
+.vscode
+.docker/etc/data/*
+__pycache__/
+*.pyc
