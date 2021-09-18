@@ -5,9 +5,12 @@ from database.redis import q
 from database.models import SaleFile
 from database.types import StatusEnum
 from controllers.process_file import ProcessFile
+from helpers.logger import Logger
 
 def processFileTask(rawData: list):
-    ProcessFile().processRawData(rawData)
+    nextSaleFileId = SaleFile.getNextId()
+    loggerInstance = Logger(nextSaleFileId)
+    ProcessFile(loggerInstance).processRawData(rawData)
 
 class SendFile(Resource):
     def post(self):

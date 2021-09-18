@@ -1,4 +1,8 @@
+from helpers.logger import Logger
 
 class ProcessFile():
+    def __init__(self, LoggerInstance: Logger):
+        self.Logger = LoggerInstance
+
     def processRawData(self, rawData: list):
-        pass
+        self.Logger.log('Processing data')
