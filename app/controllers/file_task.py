@@ -1,6 +1,6 @@
 from controllers import process_file, save_file
 from helpers.logger import Logger
-from database.models import SaleFile, Customer, Store
+from database.models import SaleFile
 from database.types import StatusEnum
 
 
@@ -11,10 +11,11 @@ class FileTask():
         loggerInstance.log('Processando dados')
 
         processFileInstance = process_file.ProcessFile(loggerInstance)
-        saveFileInstance = save_file.SaveFile()
-        saveFileInstance.initializingDbData()
+        saveFileInstance = save_file.SaveFile(loggerInstance)
 
         try:
+            saveFileInstance.initializingDbData()
+
             for index, rowData in enumerate(rawData):
                 if index == 0:
                     continue
@@ -43,8 +44,8 @@ class FileTask():
                     'last_purchase_store': formattedData['last_purchase_store_cnpj']
                 })
 
-            
-
+            saveFileInstance.save()
+            self.__setSaleFileStatus(StatusEnum.completed)
         except Exception as error:
             loggerInstance.log(str(error))
             self.__setSaleFileStatus(nextSaleFileId, StatusEnum.error)
