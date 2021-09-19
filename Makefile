@@ -1,6 +1,6 @@
 PROJECT = neoway
 APP_ENV ?= production
-DOCKER_COMPOSE_PATH = .docker/docker-compose.yml
+DOCKER_COMPOSE_PATH = .docker/docker-compose.yml -p ${PROJECT}
 API_CONTAINER = "api_${PROJECT}_container"
 
 ifeq ("${APP_ENV}", "dev")

@@ -1,0 +1,56 @@
+version: '3.1'
+services:
+  db:
+    image: postgres:12
+    container_name: db_neoway_container
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: XJpP1LmJNYEVq9ti
+      POSTGRES_USER: neoway
+      POSTGRES_DB: neoway
+      PGDATA: /var/lib/postgresql/data/pgdata
+    volumes:
+      - ./etc/data:/var/lib/postgresql/data
+    ports:
+      - 5432:5432
+
+  api:
+    build:
+      context: ../
+      target: prod
+      dockerfile: .docker/Dockerfile.api
+    image: flask-app-api
+    container_name: api_neoway_container
+    restart: always
+    volumes:
+      - ../app:/app
+    environment: 
+      - FLASK_APP=wsgi:app
+      - FLASK_DEBUG=0
+    depends_on: 
+      - db
+      - redis
+    ports:
+      - 5000:5000
+
+  redis:
+    image: redis
+    container_name: redis_neoway_container
+    restart: always
+    command: redis-server
+    volumes: 
+      - ./etc/redis/sysctl.conf:/etc/sysctl.conf 
+      
+  worker:
+    build:
+      context: ../
+      dockerfile: .docker/Dockerfile.redis
+    image: redis-worker
+    container_name: redis_worker_neoway_container
+    restart: always
+    volumes:
+      - ../app:/app
+    environment:
+      - REDISTOGO_URL=redis://redis:6379
+    depends_on:
+      - redis
