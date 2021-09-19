@@ -1,3 +1,4 @@
+from helpers.db import saveModel
 from database.models import Log
 
 class Logger():
@@ -10,4 +11,4 @@ class Logger():
             sale_file_id=self.saleFileId
         )
         
-        Log.save(logInstance)
+        saveModel(logInstance)
