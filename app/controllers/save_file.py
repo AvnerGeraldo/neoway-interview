@@ -21,6 +21,13 @@ class SaveFile():
             self.customersToDb.append(resCustomer)
             self.customersCpf.append(cpf)
 
+    def addStoreToDb(self, cnpj: str):
+        resStore = self.__prepareStoreDataToDb(cnpj)
+
+        if not resStore is None:
+            self.storesToDb.append(resStore)
+            self.storesCnpj.append(cnpj)
+
     def __prepareCustomerDataToDb(self, cpf: str):
         if not cpf in self.customersCpf:
             try:
@@ -33,3 +40,16 @@ class SaveFile():
                 return None
             except Exception as error:
                 raise Exception("Erro: Não foi possível adicionar cliente com o CPF %s na base de dados. %s" % (cpf, str(error)))
+
+    def __prepareStoreDataToDb(self, cnpj: str):
+        if not cnpj in self.storesCnpj:
+            try:
+                if not cnpj is None:
+                    hasStore = self.storeDbData.filter_by(cnpj=cnpj).first()
+
+                    if not hasStore:
+                        return Store(cnpj=cnpj)
+
+                return None
+            except Exception as error:
+                raise Exception("Erro: Não foi possível adicionar loja com o CNPJ %s na base de dados" % (cnpj, str(error)))

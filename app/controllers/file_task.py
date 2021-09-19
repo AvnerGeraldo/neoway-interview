@@ -25,25 +25,23 @@ class FileTask():
                     continue
                 
                 saveFileInstance.addCustomerToDb(formattedData['customer_id_cpf'])
-                
 
-                for storeCnpj in [formattedData['most_visited_store_cnpj'], formattedData['last_purchase_store_cnpj']]:
-                    resStore = self.__prepareStoreDataToDb(stores, storeDb, storeCnpj)
+                if formattedData['most_visited_store_cnpj'] == formattedData['last_purchase_store_cnpj']:
+                    saveFileInstance.addStoreToDb(formattedData['most_visited_store_cnpj'])
+                else:
+                    saveFileInstance.addStoreToDb(formattedData['most_visited_store_cnpj'])
+                    saveFileInstance.addStoreToDb(formattedData['last_purchase_store_cnpj'])
 
-                    if not resStore is None:
-                        addStoreToDb.append(resStore)
-                        stores.append(storeCnpj)
-
-                addSales.append({
-                    'private': formattedData['private'],
-                    'unfinished': formattedData['unfinished'],
-                    'last_purchase': formattedData['last_purchase_date'],
-                    'average_ticket_price': formattedData['average_ticket_price'],
-                    'ticket_price_last_purchase': formattedData['ticket_price_last_purchase'],
-                    'customer_id': formattedData['customer_id_cpf'],
-                    'most_visited_store': formattedData['most_visited_store_cnpj'],
-                    'last_purchase_store': formattedData['last_purchase_store_cnpj']
-                })
+                # addSales.append({
+                #     'private': formattedData['private'],
+                #     'unfinished': formattedData['unfinished'],
+                #     'last_purchase': formattedData['last_purchase_date'],
+                #     'average_ticket_price': formattedData['average_ticket_price'],
+                #     'ticket_price_last_purchase': formattedData['ticket_price_last_purchase'],
+                #     'customer_id': formattedData['customer_id_cpf'],
+                #     'most_visited_store': formattedData['most_visited_store_cnpj'],
+                #     'last_purchase_store': formattedData['last_purchase_store_cnpj']
+                # })
 
             
 
@@ -56,20 +54,3 @@ class FileTask():
 
         if hasSaleFile:
             SaleFile.update(hasSaleFile, { 'status': status })
-
-    
-
-    def __prepareStoreDataToDb(self, storeList: list, storeDb: list, cnpj: str):
-        if not cnpj in storeList:
-            try:
-                if not cnpj is None:
-                    hasStore = storeDb.filter_by(cnpj=cnpj).first()
-
-                    if not hasStore:
-                        return Store(cnpj=cnpj)
-
-                return None
-            except Exception as error:
-                raise Exception("Erro: Não foi possível adicionar loja com o CNPJ %s na base de dados" % (cnpj, str(error)))
-
-    
