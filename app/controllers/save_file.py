@@ -28,6 +28,9 @@ class SaveFile():
             self.storesToDb.append(resStore)
             self.storesCnpj.append(cnpj)
 
+    def addSaleToDb(self, data:dict):
+        self.addSaleToDb.append(data)
+
     def __prepareCustomerDataToDb(self, cpf: str):
         if not cpf in self.customersCpf:
             try:

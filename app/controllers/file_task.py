@@ -32,16 +32,16 @@ class FileTask():
                     saveFileInstance.addStoreToDb(formattedData['most_visited_store_cnpj'])
                     saveFileInstance.addStoreToDb(formattedData['last_purchase_store_cnpj'])
 
-                # addSales.append({
-                #     'private': formattedData['private'],
-                #     'unfinished': formattedData['unfinished'],
-                #     'last_purchase': formattedData['last_purchase_date'],
-                #     'average_ticket_price': formattedData['average_ticket_price'],
-                #     'ticket_price_last_purchase': formattedData['ticket_price_last_purchase'],
-                #     'customer_id': formattedData['customer_id_cpf'],
-                #     'most_visited_store': formattedData['most_visited_store_cnpj'],
-                #     'last_purchase_store': formattedData['last_purchase_store_cnpj']
-                # })
+                saveFileInstance.addSaleToDb({
+                    'private': formattedData['private'],
+                    'unfinished': formattedData['unfinished'],
+                    'last_purchase': formattedData['last_purchase_date'],
+                    'average_ticket_price': formattedData['average_ticket_price'],
+                    'ticket_price_last_purchase': formattedData['ticket_price_last_purchase'],
+                    'customer_id': formattedData['customer_id_cpf'],
+                    'most_visited_store': formattedData['most_visited_store_cnpj'],
+                    'last_purchase_store': formattedData['last_purchase_store_cnpj']
+                })
 
             
 
