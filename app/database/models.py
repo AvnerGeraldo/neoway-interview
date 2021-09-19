@@ -22,13 +22,28 @@ def updateModel(modelInstance, updatedData: dict):
         db.session.close()
         abort(str(e), 500)
 
+def bulkModel(objects):
+    try:
+        db.session.bulk_save_objects(objects)
+        db.session.commit()
+    except Exception as e:
+        db.session.rollback()
+        db.session.close()
+        abort(str(e))
+
 class Customer(db.Model):
     __tablename__ = 'customer'
     cpf = db.Column(db.String(11), primary_key=True, unique=True)
 
+    def bulk(customers: list):
+        bulkModel(customers)
+
 class Store(db.Model):
     __tablename__ = 'store'
     cnpj = db.Column(db.String(14), primary_key=True, unique=True)
+
+    def bulk(stores: list):
+        bulkModel(stores)
 
 class Sale(db.Model):
     __tablename__ = 'sale'
@@ -41,6 +56,15 @@ class Sale(db.Model):
     customer_id = db.Column(db.String(11), db.ForeignKey('customer.cpf'))
     most_visited_store = db.Column(db.String(14), db.ForeignKey('store.cnpj'), nullable=True)
     last_purchase_store = db.Column(db.String(14), db.ForeignKey('store.cnpj'), nullable=True)
+
+    def save(addSale):
+        saveModel(addSale)
+    
+    def update(SaleObject, updatedData: dict):
+        updateModel(SaleObject, updatedData)
+
+    def bulk(sales: list):
+        bulkModel(sales)
 
 class SaleFile(db.Model):
     __tablename__ = 'sale_file'
