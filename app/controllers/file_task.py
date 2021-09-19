@@ -1,4 +1,4 @@
-from controllers.process_file import ProcessFile
+from controllers import process_file, save_file
 from helpers.logger import Logger
 from database.models import SaleFile, Customer, Store
 from database.types import StatusEnum
@@ -10,14 +10,9 @@ class FileTask():
         loggerInstance = Logger(nextSaleFileId)
         loggerInstance.log('Processando dados')
 
-        processFileInstance = ProcessFile(loggerInstance)
-        customers = []
-        stores = []
-        addCustomersToDb = []
-        addStoreToDb = []
-        addSales = []
-        customerDb = Customer.query.all()
-        storeDb = Store.query.all()
+        processFileInstance = process_file.ProcessFile(loggerInstance)
+        saveFileInstance = save_file.SaveFile()
+        saveFileInstance.initializingDbData()
 
         try:
             for index, rowData in enumerate(rawData):
@@ -28,12 +23,9 @@ class FileTask():
 
                 if processFileInstance.isValidData(formattedData) is False:
                     continue
-
-                resCustomer = self.__prepareCustomerDataToDb(customers, customerDb, formattedData['customer_id_cpf'])
-
-                if not resCustomer is None:
-                    addCustomersToDb.append(resCustomer)
-                    customers.append(formattedData['customer_id_cpf'])
+                
+                saveFileInstance.addCustomerToDb(formattedData['customer_id_cpf'])
+                
 
                 for storeCnpj in [formattedData['most_visited_store_cnpj'], formattedData['last_purchase_store_cnpj']]:
                     resStore = self.__prepareStoreDataToDb(stores, storeDb, storeCnpj)
@@ -65,18 +57,7 @@ class FileTask():
         if hasSaleFile:
             SaleFile.update(hasSaleFile, { 'status': status })
 
-    def __prepareCustomerDataToDb(self, customerList: list, customerDb: list, cpf: str):
-        if not cpf in customerList:
-            try:
-                if not cpf is None:
-                    hasCustomer = customerDb.filter_by(cpf=cpf).first()
-
-                    if not hasCustomer:
-                        return Customer(cpf=cpf)
-
-                return None
-            except Exception as error:
-                raise Exception("Erro: Não foi possível adicionar cliente com o CPF %s na base de dados. %s" % (cpf, str(error)))
+    
 
     def __prepareStoreDataToDb(self, storeList: list, storeDb: list, cnpj: str):
         if not cnpj in storeList:
