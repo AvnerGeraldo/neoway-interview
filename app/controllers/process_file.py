@@ -1,12 +1,11 @@
 import re
 from datetime import datetime
 
-from helpers.logger import Logger
 from helpers.validateCpfCnpj import ValidaCpfCnpj
 
 class ProcessFile():
-    def __init__(self, LoggerInstance: Logger):
-        self.Logger = LoggerInstance
+    def __init__(self, loggerInstance):
+        self.Logger = loggerInstance
 
     def processRawData(self, rowData: str):
         columns = self.__separateDataInColumns(rowData)
@@ -78,3 +77,11 @@ class ProcessFile():
                 return False
 
         return True
+
+    def __formatCurrency(self, value):
+        if type(value) == str:
+            formattedValue = value.replace('.', '')
+            formattedValue = formattedValue.replace(',', '.')
+            return float(formattedValue)
+
+        return float(value)
