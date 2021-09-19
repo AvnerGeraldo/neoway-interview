@@ -3,7 +3,7 @@ APP_ENV ?= production
 DOCKER_COMPOSE_PATH = .docker/docker-compose.yml
 API_CONTAINER = "api_${PROJECT}_container"
 
-ifeq ("${APP_ENV}", "development")
+ifeq ("${APP_ENV}", "dev")
 	DOCKER_COMPOSE_PATH = .docker/docker-compose.dev.yml -p ${PROJECT}
 endif
 
@@ -20,6 +20,8 @@ docker-start:
 
 docker-stop:
 	@docker stop $$(docker ps -f "name=${PROJECT}" | grep ${PROJECT} | awk '{print $$1}')
+
+create-db: db-init migrate
 
 db:
 	@docker exec -i ${API_CONTAINER} pipenv run flask db $(cmd)
