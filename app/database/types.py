@@ -5,3 +5,4 @@ class StatusEnum(enum.Enum):
     completed = 'completed'
     canceled = 'canceled'
     failed = 'failed'
+    error = 'error'
