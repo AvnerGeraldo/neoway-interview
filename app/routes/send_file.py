@@ -1,10 +1,15 @@
 from flask import request, make_response, jsonify, abort
 from flask_restful import Resource
+from wsgi import app
 
-from database.redis import q
 from database.models import SaleFile
+from database.redis import q
 from database.types import StatusEnum
 from controllers.file_task import FileTask
+
+def queueTask(func, rows):
+    with app.app_context():
+        func(rows)
 
 class SendFile(Resource):
     def post(self):
@@ -16,17 +21,27 @@ class SendFile(Resource):
             if len(rows) <= 1:
                 abort('Arquivo vazio', 406)
 
-            job = q.enqueue_call(func=FileTask().handle, args=(rows, ), result_ttl=5500, timeout=900)
-            addSale = SaleFile(status=StatusEnum.processing, job_id=job.get_id())
-            SaleFile.save(addSale)
+            FileTaskInstance = FileTask()
+            FileTaskInstance.createSaleFile()
+
+            nextId = FileTaskInstance.saleId
+            statusLink = '/api/sales/import/%s/status' % nextId
+
+            job = q.enqueue_call(func=queueTask, args=(FileTaskInstance.handle, rows, ), result_ttl=3600, timeout=900)
+            FileTaskInstance.setSaleFileStatus(StatusEnum.processing, job.get_id())
 
             return make_response(jsonify({
-                "message": 'Arquivo enviado com sucesso! Logo iremos processá-lo'
+                "message": 'Arquivo enviado com sucesso! Logo iremos processá-lo. Por favor, verique seu status em %s' % statusLink
             }), 200)
         except Exception as error:
+            if hasattr(error, 'code'):
+                return make_response(jsonify({
+                    "message": error.description
+                }), error.code)
+
             return make_response(jsonify({
-                "message": error.description
-            }), error.code)
+                "message": str(error)
+            }), 400)
 
 
     def __validateRequest(self, request) -> bool:
