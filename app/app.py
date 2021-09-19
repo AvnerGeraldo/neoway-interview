@@ -12,6 +12,7 @@ def create_app():
     # Database
     app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URI', '')
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+    app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {"connect_args": {"options": "-c timezone=America/Sao_Paulo"}}
 
     appDir = os.path.dirname(os.path.abspath(__file__))
     db.init_app(app)
