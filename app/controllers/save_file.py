@@ -1,22 +1,14 @@
-from helpers.logger import Logger
 from database.models import Customer, Store, Sale
+from helpers.db import bulkModel, saveModel, updateModel
 
 class SaveFile():
-    def __init__(self, LoggerInstance: Logger):
+    def __init__(self, LoggerInstance):
         self.Logger = LoggerInstance
         self.customersCpf = []
         self.storesCnpj = []
         self.customersToDb = []
         self.storesToDb = []
         self.salesToDb = []
-        self.customerDbData = None
-        self.storeDbData = None
-        self.saleDbData = None
-
-    def initializingDbData(self):
-        self.customerDbData = Customer.query.all()
-        self.storeDbData = Store.query.all()
-        self.saleDbData = Sale.query.all()
 
     def addCustomerToDb(self, cpf: str):
         resCustomer = self.__prepareCustomerDataToDb(cpf)
@@ -33,18 +25,18 @@ class SaveFile():
             self.storesCnpj.append(cnpj)
 
     def addSaleToDb(self, data:dict):
-        self.addSaleToDb.append(data)
+        self.salesToDb.append(data)
 
     def save(self):
         if len(self.customersToDb) > 0:
-            self.Logger.log('Saving customers')
-            Customer.bulk(self.customersToDb)
+            self.Logger.log('Salvando clientes')
+            bulkModel(self.customersToDb)
 
         if len(self.storesToDb) > 0:
-            self.Logger.log('Saving stores')
-            Store.bulk(self.storesToDb)
+            self.Logger.log('Salvando lojas')
+            bulkModel(self.storesToDb)
 
-        self.Logger.log('Saving sales')
+        self.Logger.log('Salvando ticket médio')
         for saleData in self.salesToDb:
             self.__saveSale(saleData)
 
@@ -52,7 +44,7 @@ class SaveFile():
         if not cpf in self.customersCpf:
             try:
                 if not cpf is None:
-                    hasCustomer = self.customerDbData.filter_by(cpf=cpf).first()
+                    hasCustomer = Customer.query.filter_by(cpf=cpf).first()
 
                     if not hasCustomer:
                         return Customer(cpf=cpf)
@@ -65,7 +57,7 @@ class SaveFile():
         if not cnpj in self.storesCnpj:
             try:
                 if not cnpj is None:
-                    hasStore = self.storeDbData.filter_by(cnpj=cnpj).first()
+                    hasStore = Store.query.filter_by(cnpj=cnpj).first()
 
                     if not hasStore:
                         return Store(cnpj=cnpj)
@@ -76,7 +68,7 @@ class SaveFile():
 
     def __saveSale(self, saleData):
         try:
-            hasSale = self.saleDbData.filter_by(customer_id=saleData['customer_id'])
+            hasSale = Sale.query.filter_by(customer_id=saleData['customer_id'])
             sale = hasSale.first()
 
             if not sale:
@@ -91,7 +83,7 @@ class SaveFile():
                     last_purchase_store=saleData['last_purchase_store']
                 )
 
-                Sale.save(addSale)
+                saveModel(addSale)
                 return True
             
             if (sale.private != saleData['private'] or sale.unfinished != saleData['unfinished'] or 
@@ -99,7 +91,7 @@ class SaveFile():
             sale.ticket_price_last_purchase != saleData['ticket_price_last_purchase'] or sale.most_visited_store != saleData['most_visited_store'] or
             sale.last_purchase_store != saleData['last_purchase_store']):
             
-                Sale.update(hasSale, dict(
+                updateModel(hasSale, dict(
                     customer_id=saleData['customer_id'],
                     private=saleData['private'],
                     unfinished=saleData['unfinished'],
@@ -111,4 +103,4 @@ class SaveFile():
                 ))
                
         except Exception as error:
-            raise Exception("Error trying to add sale with CPF %s on database. %s" % (saleData['customer_id'], str(error)))
+            raise Exception("Erro: Não foi possível adcionar ticket médio com o CPF %s na base de dados. %s" % (saleData['customer_id'], str(error)))

@@ -1,21 +1,25 @@
 from controllers import process_file, save_file
 from helpers.logger import Logger
-from database.models import SaleFile
 from database.types import StatusEnum
-
+from database.models import SaleFile
+from helpers.db import saveModel, updateModel, getNextId
 
 class FileTask():
+    def __init__(self):
+        self.saleId = None
+
+    def createSaleFile(self):
+        self.saleId = getNextId(SaleFile)
+        saveModel(SaleFile())
+
     def handle(self, rawData: list):
-        nextSaleFileId = SaleFile.getNextId()
-        loggerInstance = Logger(nextSaleFileId)
+        loggerInstance = Logger(self.saleId)
         loggerInstance.log('Processando dados')
 
         processFileInstance = process_file.ProcessFile(loggerInstance)
         saveFileInstance = save_file.SaveFile(loggerInstance)
 
         try:
-            saveFileInstance.initializingDbData()
-
             for index, rowData in enumerate(rawData):
                 if index == 0:
                     continue
@@ -45,13 +49,22 @@ class FileTask():
                 })
 
             saveFileInstance.save()
-            self.__setSaleFileStatus(StatusEnum.completed)
+            self.setSaleFileStatus(StatusEnum.completed)
+            loggerInstance.log('Processo encerrado com sucesso.')
         except Exception as error:
             loggerInstance.log(str(error))
-            self.__setSaleFileStatus(nextSaleFileId, StatusEnum.error)
+            self.__setSaleFileStatus(StatusEnum.error)
 
-    def __setSaleFileStatus(self, saleFileId: int, status: StatusEnum):
-        hasSaleFile = SaleFile.query.filter_by(id=saleFileId)
+    def setSaleFileStatus(self, status: StatusEnum, jobId: str=None):
+        hasSaleFile = SaleFile.query.filter_by(id=self.saleId)
 
         if hasSaleFile:
-            SaleFile.update(hasSaleFile, { 'status': status })
+            updatedData = { 'status': status }
+
+            if jobId:
+                updatedData.update({
+                    'job_id': jobId
+                })
+
+            updateModel(hasSaleFile, updatedData)
+        
