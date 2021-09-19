@@ -27,7 +27,6 @@ services:
     environment: 
       - FLASK_APP=wsgi
       - FLASK_DEBUG=0
-      - TZ=America/Sao_Paulo
     depends_on: 
       - db
       - redis
@@ -54,8 +53,7 @@ services:
     restart: always
     volumes:
       - ../app:/app
-    environment: 
-      - TZ=America/Sao_Paulo
+    environment:
       - REDISTOGO_URL=redis://redis:6379
     ports:
       - 5679:5679
