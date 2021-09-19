@@ -34,5 +34,5 @@ class Log(db.Model):
     __tablename__ = 'log'
     id = db.Column(db.Integer, primary_key=True)
     message = db.Column(db.Text)
-    created_at = db.Column(TIMESTAMP(timezone=False), default=func.now())
+    created_at = db.Column(TIMESTAMP(timezone=True), default=func.now())
     sale_file_id = db.Column(db.Integer, db.ForeignKey('sale_file.id'))
