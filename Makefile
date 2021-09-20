@@ -33,3 +33,6 @@ db-init:
 migrate:
 	@$(MAKE) db cmd=migrate
 	@$(MAKE) db cmd=upgrade
+
+generate-key:
+	@docker exec -i ${API_CONTAINER} python ./make_secret_key.py
