@@ -28,24 +28,15 @@ Neste projeto foram utilizadas as tecnologias abaixo:
 
 ## Como utilizar a API
 
-<<<<<<< HEAD
 Após a instalação a API ficará disponível através do endereço (http://127.0.0.1:5000), onde terá os recursos abaixo.
-=======
-Após a instalação a API ficará disponível através do endereço [http://127.0.0.1:5000][PlGh], onde terá os recursos abaixo.
->>>>>>> 3c61eed962c06920611a3674c91436bb680ba5c9
 
 
 ### Recursos disponíveis para acesso via API
 
 | Método | Recurso | Endpoint |
 | ------ | ------ | ------ |
-<<<<<<< HEAD
 | GET | Status Importação | (/api/sales/import/<in:**ID_ARQUIVO**>/status) |
 | POST | Importar arquivo | (/api/sales/import/file) |
-=======
-| GET | Status Importação | [/api/sales/import/<in:**ID_ARQUIVO**>/status][PlGh] |
-| POST | Importar arquivo | [/api/sales/import/file][PlGh] |
->>>>>>> 3c61eed962c06920611a3674c91436bb680ba5c9
 
 ### Recurso [Importar Arquivo]:
 
