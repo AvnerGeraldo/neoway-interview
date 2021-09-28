@@ -15,34 +15,86 @@ Neste projeto foram utilizadas as tecnologias abaixo:
 
 ## Requerimentos
 
-- Ter docker instalado na máquina
-- Ter as portas ***5000*** e ***5432*** liberadas para acesso
+- Ter docker instalado na máquina com versão igual ou superior a 17.09.0
+- Ter as portas **_5000_** e **_5432_** liberadas para acesso
 
 ## Instalação
 
 1. Baixar código-fonte do repositório (Pode-se usar `git clone`)
-2. Copiar arquivo `/app/.env.example` para `/app/.env` para setar as variáveis de ambiente
+
+### Para ambiente Windows
+
+#### Instalação Opção #1
+
+2. Instalar o Chocolatey para executar comandos make no terminal
+   
+   2.1. Abrir prompt de comando (`cmd.exe`) em modo de Administrador e acessar a pasta do repositório baixado
+   
+   2.2. Executar o arquivo `installChocolatey.cmd` para instalar o Chocolatey e aguardar conclusão
+3. Após finalizar a instalação, abrir novamente o `cmd.exe` em modo de Administrador
+   
+   3.1. Executar o comando `choco install make` e após finalizada a instalação fechar o prompt
+4. Abrir o prompt de comando (`cmd.exe`) e acessar a pasta do respositório baixado
+5. Executar `make` para instalar os containers necessários para a aplicação.
+6. Copiar arquivo `/app/.env.example` para `/app/.env` para setar as variáveis de ambiente
+7. Executar o comando `make generate-key` para gerar a key que sera informada no arquivo `/app/.env` na tag SECRET KEY
+8. Executar `make create-db` para iniciar a criação da estrutura do banco de dados (Estrutura Banco de dados)
+
+#### Instalação Opção #2
+
+2. Abrir prompt de comando (`cmd.exe`) e acessar a pasta do repositório baixado
+3. Executar o comando docker abaixo para criar os containers:
+
+```
+docker-compose -f .docker/docker-compose.yml -p neoway --compatibility up -d
+```
+
+4. Copiar arquivo `/app/.env.example` para `/app/.env` para setar as variáveis de ambiente
+5. Executar o comando docker abaixo para gerar a secret key:
+
+```
+docker exec -i api_neoway_container python ./make_secret_key.py
+```
+
+6. Criar a estrutura do banco de dados (executar separadamente):
+
+```
+docker exec -i api_neoway_container pipenv run flask db init
+```
+```
+docker exec -i api_neoway_container pipenv run flask db upgrade
+```
+```
+docker exec -i api_neoway_container pipenv run flask db migrate
+```
+```
+docker exec -i api_neoway_container pipenv run flask db upgrade
+```
+
+### Para ambiente Linux
+
 2. Acessar a raiz do repositório baixado e executar `make` para instalar os containers necessários para a aplicação.
 3. Executar o comando `make generate-key` para gerar a key que sera informada no arquivo `/app/.env` na tag SECRET KEY
-3. Executar `make create-db` para iniciar a criação da estrutura do banco de dados (Estrutura Banco de dados)
+4. Copiar arquivo `/app/.env.example` para `/app/.env` para setar as variáveis de ambiente
+5. Executar `make create-db` para iniciar a criação da estrutura do banco de dados (Estrutura Banco de dados)
 
 ## Como utilizar a API
 
 Após a instalação a API ficará disponível através do endereço (http://127.0.0.1:5000), onde terá os recursos abaixo.
 
-
 ### Recursos disponíveis para acesso via API
 
-| Método | Recurso | Endpoint |
-| ------ | ------ | ------ |
-| GET | Status Importação | (/api/sales/import/<in:**ID_ARQUIVO**>/status) |
-| POST | Importar arquivo | (/api/sales/import/file) |
+| Método | Recurso           | Endpoint                                       |
+| ------ | ----------------- | ---------------------------------------------- |
+| GET    | Status Importação | (/api/sales/import/<in:**ID_ARQUIVO**>/status) |
+| POST   | Importar arquivo  | (/api/sales/import/file)                       |
 
 ### Recurso [Importar Arquivo]:
 
 #### Request
+
 `POST /api/sales/import/file`
-    
+
     curl -i -X POST -H "Accept: text/plain" -H "Content-Type: text/plain" --data-binary "@ARQUIVO" http://127.0.0.1:5000/api/sales/import/file
 
 #### Response
@@ -60,18 +112,19 @@ Após a instalação a API ficará disponível através do endereço (http://127
 ### Recurso [Status Importação]:
 
 #### Request
+
 `GET /api/sales/import/ID_ARQUIVO/status`
 
     curl -i -X GET -H "Accept: application/json" -H "Content-Type: application/json"  http://127.0.0.1:5000/api/sales/import/2/status
-    
+
 #### Response
-    
+
     HTTP/1.1 200 OK
     Date: Mon, 20 Sep 2021 03:38:07 GMT
     Connection: close
     Content-Type: application/json
     Content-Length: 203
-    
+
     {
         "job_status":"started",
         "logs":[
@@ -95,7 +148,8 @@ Utilizado banco Postgres na versão 12.
 - SaleFile
 
 ## DDL (Data Definition Language)
-````
+
+```
 -- DROP SCHEMA public;
 
 CREATE SCHEMA public AUTHORIZATION neoway;
@@ -222,4 +276,4 @@ CREATE TABLE public.sale (
 	CONSTRAINT sale_last_purchase_store_fkey FOREIGN KEY (last_purchase_store) REFERENCES public.store(cnpj),
 	CONSTRAINT sale_most_visited_store_fkey FOREIGN KEY (most_visited_store) REFERENCES public.store(cnpj)
 );
-````
+```
